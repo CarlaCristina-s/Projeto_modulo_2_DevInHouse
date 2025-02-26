@@ -10,5 +10,6 @@ userRouter.post("/", isAdmin, userController.create);
 userRouter.get("/", isAdmin, userController.findAll);
 userRouter.get("/:id", isAdminOrDriver, userController.get);
 userRouter.put("/:id", isAdminOrDriver, userController.put);
+userRouter.patch("/:id/status", isAdmin, userController.patch);
 
 export default userRouter;
