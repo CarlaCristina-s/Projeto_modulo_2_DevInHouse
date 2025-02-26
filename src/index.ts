@@ -19,8 +19,10 @@ app.use(cors()); // Permite que o express entenda requisições de outros domín
 
 app.use(express.json()); // Permite que o express entenda JSON
 
-app.use("/users", userRouter);
 app.use("/login", authRouter);
+
+app.use("/users", userRouter);
+
 
 app.get("/env", (req, res) => {
   res.json({
