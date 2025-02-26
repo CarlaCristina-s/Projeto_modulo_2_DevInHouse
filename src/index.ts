@@ -7,6 +7,7 @@ import { AppDataSource } from "./data-source";
 import cors from "cors";
 
 import userRouter from "./routes/user.routes";
+import loginRouter from "./routes/login.routes";
 
 import { handleError } from "./middlewares/handleError";
 
@@ -19,8 +20,7 @@ app.use(cors()); // Permite que o express entenda requisições de outros domín
 
 app.use(express.json()); // Permite que o express entenda JSON
 
-app.use("/login", authRouter);
-
+app.use("/login", loginRouter);
 app.use("/users", userRouter);
 
 
