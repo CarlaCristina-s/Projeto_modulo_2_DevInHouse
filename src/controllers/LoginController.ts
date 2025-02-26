@@ -34,9 +34,10 @@ export class LoginController {
         return res.status(401).json({ message: "Invalid email or password" });
       }
 
-      const token = await jwt.sign(
+      const token = jwt.sign(
         {
           role: user.profile,
+          userId: user.id
         },
         process.env.JWT_SECRET ?? "",
         {
