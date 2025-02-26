@@ -4,7 +4,7 @@ import { User } from "../entities/User";
 import { Branch } from "../entities/Branch";
 import { Driver } from "../entities/Driver";
 import { isCPF, isCNPJ } from "validation-br";
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from "bcrypt";
 
 export class UserController {
   getAll(
@@ -126,26 +126,63 @@ export class UserController {
 
   findAll = async (req: Request, res: Response) => {
     try {
-      const { profile } = req.query; 
-  
+      const { profile } = req.query;
+
       let whereCondition = {};
-      
+
       if (profile) {
-        whereCondition = { profile }; 
+        whereCondition = { profile };
       }
-  
+
       const users = await this.userRepository.find({
         where: whereCondition,
-        select: ["id", "name", "status", "profile"], 
+        select: ["id", "name", "status", "profile"],
       });
-  
+
       return res.status(200).json(users);
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Internal server error" });
     }
   };
-  
+
+  get = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+
+      const user = await this.userRepository.findOne({
+        where: { id },
+        select: ["id", "name", "status", "profile"],
+      });
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      if (user.profile === "DRIVER") {
+        const fullAddress = await this.driverRepository.query(
+          "SELECT full_address FROM drivers WHERE user_id = $1",
+          [id]
+        );
+
+        user.full_address = fullAddress[0].full_address;
+      } else if (user.profile === "BRANCH") {
+        const fullAddress = await this.branchRepository.query(
+          "SELECT full_address FROM branches WHERE user_id = $1",
+          [id]
+        );
+
+        user.full_address = fullAddress[0].full_address;
+      } else {
+        user.full_address = null;
+      }
+
+      return res.status(200).json(user);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  };
 }
 
 export default UserController;
