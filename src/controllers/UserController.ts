@@ -211,7 +211,7 @@ export class UserController {
           const hashedPassword = await bcrypt.hash(password, saltRounds);
           return hashedPassword;
         };
-  
+
         password = await hashPassword(password);
 
         user.password_hash = password;
@@ -227,7 +227,6 @@ export class UserController {
 
         driver[0].full_address = full_address;
         await this.driverRepository.save(driver[0]);
-
       } else if (user.profile === "BRANCH") {
         const branch = await this.branchRepository.query(
           "SELECT * FROM branches WHERE user_id = $1",
@@ -239,12 +238,39 @@ export class UserController {
       }
 
       return res.status(200).json(user);
-
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Internal Server Error" });
     }
   };
+
+  patch = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+  
+      if (status !== true && status !== false) {
+        return res.status(400).json({ message: "Invalid status value" });
+      }
+  
+      const user = await this.userRepository.findOne({
+        where: { id },
+      });
+  
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      user.status = status;
+      await this.userRepository.save(user);
+  
+      return res.status(200).json({ message: "User status updated successfully" });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  };
+  
 }
 
 export default UserController;
