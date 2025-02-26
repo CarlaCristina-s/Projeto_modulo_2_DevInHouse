@@ -123,6 +123,29 @@ export class UserController {
       res.status(500).json({ message: "Internal server error" });
     }
   };
+
+  findAll = async (req: Request, res: Response) => {
+    try {
+      const { profile } = req.query; 
+  
+      let whereCondition = {};
+      
+      if (profile) {
+        whereCondition = { profile }; 
+      }
+  
+      const users = await this.userRepository.find({
+        where: whereCondition,
+        select: ["id", "name", "status", "profile"], 
+      });
+  
+      return res.status(200).json(users);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  };
+  
 }
 
 export default UserController;
