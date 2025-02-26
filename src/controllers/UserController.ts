@@ -183,6 +183,68 @@ export class UserController {
       return res.status(500).json({ message: "Internal Server Error" });
     }
   };
+
+  put = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { name, email, password, full_address } = req.body;
+
+      const user = await this.userRepository.findOne({
+        where: { id },
+      });
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      if (name) {
+        user.name = name;
+      }
+
+      if (email) {
+        user.email = email;
+      }
+
+      if (password) {
+        const hashPassword = async (password: string): Promise<string> => {
+          const saltRounds = 10;
+          const hashedPassword = await bcrypt.hash(password, saltRounds);
+          return hashedPassword;
+        };
+  
+        password = await hashPassword(password);
+
+        user.password_hash = password;
+      }
+
+      await this.userRepository.save(user);
+
+      if (user.profile === "DRIVER") {
+        const driver = await this.driverRepository.query(
+          "SELECT * FROM drivers WHERE user_id = $1",
+          [user.id]
+        );
+
+        driver[0].full_address = full_address;
+        await this.driverRepository.save(driver[0]);
+
+      } else if (user.profile === "BRANCH") {
+        const branch = await this.branchRepository.query(
+          "SELECT * FROM branches WHERE user_id = $1",
+          [user.id]
+        );
+
+        branch[0].full_address = full_address;
+        await this.branchRepository.save(branch[0]);
+      }
+
+      return res.status(200).json(user);
+
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  };
 }
 
 export default UserController;
