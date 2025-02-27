@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn, OneToMany } from "typeorm"; 
 import { User } from "./User";
 import { Product } from "./Product";
+import { Movement } from "./Movement";
 
 @Entity("branches")
 export class Branch {
@@ -17,8 +18,14 @@ export class Branch {
   @JoinColumn({ name: "user_id" })
   user: User;
 
+  @Column({ type: "int", nullable: false })
+  user_id: number;
+
   @OneToMany(() => Product, product => product.branch)
   products: Product[];
+
+  @OneToMany(() => Movement, (movement) => movement.destinationBranch)
+  receivedMovements: Movement[];
 
   @CreateDateColumn({ type: "timestamp" })
   created_at: Date;
