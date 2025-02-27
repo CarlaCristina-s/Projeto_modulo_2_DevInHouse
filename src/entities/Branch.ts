@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn, OneToMany } from "typeorm";
 import { User } from "./User";
+import { Product } from "./Product";
 
 @Entity("branches")
 export class Branch {
@@ -12,13 +13,16 @@ export class Branch {
   @Column({ type: "varchar", length: 30, nullable: false })
   document: string;
 
+  @OneToOne(() => User)
+  @JoinColumn({ name: "user_id" })
+  user: User;
+
+  @OneToMany(() => Product, product => product.branch)
+  products: Product[];
+
   @CreateDateColumn({ type: "timestamp" })
   created_at: Date;
 
   @UpdateDateColumn({ type: "timestamp" })
   updated_at: Date;
-
-  @OneToOne(() => User)
-  @JoinColumn({ name: "user_id" })
-  user: User;
 }

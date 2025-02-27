@@ -5,12 +5,12 @@ import AppError from "../utils/AppError";
 type dataJwt = JwtPayload & { userId: string };
 
 export interface AuthRequest extends Request {
-  userId: string;
+  userId: string
 }
 
 export
 const verifyToken = (
-  req: Request & { userId: string },
+  req: Request & { userId: string, role: string },
   _res: Response,
   next: NextFunction
 ) => {
@@ -24,6 +24,7 @@ const verifyToken = (
     const data = jwt.verify(token, process.env.JWT_SECRET ?? "") as dataJwt
 
     req.userId = data.userId
+    req.role = data.role
 
     next();
   } catch (error) {

@@ -12,13 +12,13 @@ export class Driver {
   @Column({ type: "varchar", length: 30, nullable: false })
   document: string;
 
+  @OneToOne(() => User)
+  @JoinColumn({ name: "user_id" })
+  user: User;
+
   @CreateDateColumn({ type: "timestamp" })
   created_at: Date;
 
   @UpdateDateColumn({ type: "timestamp" })
   updated_at: Date;
-
-  @OneToOne(() => User)
-  @JoinColumn({ name: "user_id" })
-  user: User;
 }
