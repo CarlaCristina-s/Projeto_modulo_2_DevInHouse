@@ -63,6 +63,38 @@ export class ProductController {
       res.status(500).json({ message: "Internal server error" });
     }
   };
+
+  findAll = async (req: Request, res: Response) => {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { id: req.userId }
+      });
+
+      if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
+
+      if (!(user.profile === "BRANCH")) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+
+      const branch = await this.branchRepository.query(
+        "SELECT * FROM branches WHERE user_id = $1",
+        [user.id]
+      );
+
+      const products = await this.productRepository.find({
+        where: { branch: { id: branch[0].id } }
+      });
+
+      console.log(products);
+      res.status(200).json(products);
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  };
 }
 
 export default ProductController;
