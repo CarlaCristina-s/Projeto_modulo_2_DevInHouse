@@ -79,6 +79,20 @@ export class MovementController {
       res.status(500).json({ message: "Internal server error" });
     }
   };
+
+  findAll = async (req: Request, res: Response) => {
+    try {
+      const movements = await this.movementRepository.find({
+        relations: ["destinationBranch", "product"],
+      });
+    
+      return res.status(200).json(movements);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+
+  }
 }
 
 export default MovementController;
