@@ -1,11 +1,14 @@
 import { Router } from "express";
 import { MovementController } from "../controllers/MovementController";
-import { verifyToken }  from "../middlewares/auth";
+import isBranchOrDriver from "../middlewares/isBranchOrDriver";
+import isDriver from "../middlewares/isDriver";
+import isBranch from "../middlewares/isBranch";
 
 const movementRouter = Router();
 const movementController = new MovementController();
 
-movementRouter.post("/", movementController.create);
-movementRouter.get("/", movementController.findAll);  
+movementRouter.post("/", isBranch, movementController.create);
+movementRouter.get("/", isBranchOrDriver, movementController.findAll);  
+movementRouter.patch("/:id/start", isDriver, movementController.start);
 
 export default movementRouter;
