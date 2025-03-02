@@ -3,6 +3,7 @@ import { AppDataSource } from "../data-source";
 import { Product } from "../entities/Product";
 import { Movement } from "../entities/Movement";
 import { Branch } from "../entities/Branch";
+import { Driver } from "../entities/Driver";
 
 export class MovementController {
   getAll(
@@ -20,6 +21,7 @@ export class MovementController {
   private productRepository = AppDataSource.getRepository(Product);
   private movementRepository = AppDataSource.getRepository(Movement);
   private branchRepository = AppDataSource.getRepository(Branch);
+  private driverRepository = AppDataSource.getRepository(Driver);
 
   create = async (req: Request, res: Response) => {
     try {
@@ -33,9 +35,11 @@ export class MovementController {
       const destinationBranch = await this.branchRepository.findOne({
         where: { id: destination_branch_id },
       });
-  
+
       if (!destinationBranch) {
-        return res.status(404).json({ message: "Destination branch not found" });
+        return res
+          .status(404)
+          .json({ message: "Destination branch not found" });
       }
 
       const product = await this.productRepository.findOne({
@@ -53,12 +57,9 @@ export class MovementController {
       }
 
       if (destination_branch_id === product.branch_id) {
-        res
-          .status(400)
-          .json({
-            message:
-              "The source branch cannot be the same as the target branch",
-          });
+        res.status(400).json({
+          message: "The source branch cannot be the same as the target branch",
+        });
         return;
       }
 
@@ -67,7 +68,7 @@ export class MovementController {
 
       const movement = this.movementRepository.create({
         destination_branch_id: destination_branch_id,
-        product_id:  product.id,
+        product_id: product.id,
         quantity: quantity,
       });
 
@@ -85,14 +86,42 @@ export class MovementController {
       const movements = await this.movementRepository.find({
         relations: ["destinationBranch", "product"],
       });
-    
+
       return res.status(200).json(movements);
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Internal server error" });
     }
+  };
 
-  }
+  start = async (req: Request, res: Response) => {
+    try {
+      const driver = await this.driverRepository.findOne({
+        where: { user_id: req.userId },
+      });
+
+      if (!driver) {
+        return res.status(404).json({ message: "Driver not found" });
+      }
+
+      const movement = await this.movementRepository.findOne({
+        where: { id: req.params.id },
+      });
+
+      if (!movement) {
+        return res.status(404).json({ message: "Movement not found" });
+      }
+
+      movement.driver_id = driver.id;
+      movement.status = "IN_PROGRESS";
+      const updatedMovement = await this.movementRepository.save(movement);
+
+      res.status(200).json(updatedMovement);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  };
 }
 
 export default MovementController;
