@@ -122,6 +122,54 @@ export class MovementController {
       res.status(500).json({ message: "Internal server error" });
     }
   };
+
+  finish = async (req: Request, res: Response) => {
+    try {
+      const driver = await this.driverRepository.findOne({
+        where: { user_id: req.userId },
+      });
+
+      if (!driver) {
+        return res.status(404).json({ message: "Driver not found" });
+      }
+
+      const movement = await this.movementRepository.findOne({
+        where: { id: req.params.id },
+      });
+
+      if (!movement) {
+        return res.status(404).json({ message: "Movement not found" });
+      }
+
+      if (movement.driver_id != driver.id) {
+        return res
+          .status(403)
+          .json({ message: "Movement does not belong to this driver" });
+      }
+
+      movement.status = "FINISHED";
+      const updatedMovement = await this.movementRepository.save(movement);
+
+      const product = await this.productRepository.findOne({
+        where: { id: movement.product_id },
+      });
+
+      const newProduct = this.productRepository.create({
+        name: product.name,
+        amount: movement.quantity,
+        description: product.description,
+        url_cover: product.url_cover,
+        branch_id: movement.destination_branch_id,
+      });
+
+      await this.productRepository.save(newProduct);
+      
+      res.status(200).json(updatedMovement);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  };
 }
 
 export default MovementController;
