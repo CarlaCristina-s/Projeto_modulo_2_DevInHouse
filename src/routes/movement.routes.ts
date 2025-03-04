@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { MovementController } from "../controllers/MovementController";
+import MovementController from "../controllers/MovementController";
 import isBranchOrDriver from "../middlewares/isBranchOrDriver";
 import isDriver from "../middlewares/isDriver";
 import isBranch from "../middlewares/isBranch";

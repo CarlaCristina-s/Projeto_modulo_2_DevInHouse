@@ -4,18 +4,7 @@ import { User } from "../entities/User";
 import { Branch } from "../entities/Branch";
 import { Product } from "../entities/Product";
 
-export class ProductController {
-  getAll(
-    arg0: string,
-    arg1: (
-      req: Request,
-      res: Response,
-      next: import("express").NextFunction
-    ) => Promise<Response<any, Record<string, any>> | undefined>,
-    getAll: any
-  ) {
-    throw new Error("Method not implemented.");
-  }
+class ProductController {
 
   private userRepository = AppDataSource.getRepository(User);
   private branchRepository = AppDataSource.getRepository(Branch);
@@ -24,6 +13,7 @@ export class ProductController {
   create = async (req: Request, res: Response) => {
     try {
       let { name, amount, description, url_cover } = req.body;
+      const userId = (req as any).userId as number
 
       if (!name || !amount || !description) {
         res.status(400).json({ message: "Invalid body" });
@@ -31,7 +21,7 @@ export class ProductController {
       }
 
       const user = await this.userRepository.findOne({
-        where: { id: req.userId },
+        where: { id: userId },
       });
 
       if (!user) {
@@ -66,8 +56,10 @@ export class ProductController {
 
   findAll = async (req: Request, res: Response) => {
     try {
+      const userId = (req as any).userId as number;
+      
       const user = await this.userRepository.findOne({
-        where: { id: req.userId }
+        where: { id: userId }
       });
 
       if (!user) {

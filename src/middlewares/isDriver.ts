@@ -3,16 +3,13 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 
 type dataJwt = JwtPayload & { userId: string };
 
-export const isDriver = (
-  req: Request & { userId: string },
-  res: Response,
-  next: NextFunction
-) => {
+const isDriver = (req: Request, res: Response, next: NextFunction): void => {
   try {
     const token = req.headers.authorization?.split(" ")[1] ?? "";
 
     if (!token) {
-      return res.status(401).json({ message: "Invalid token" });
+      res.status(401).json({ message: "Invalid token" });
+      return;
     }
 
     const data = jwt.verify(token, process.env.JWT_SECRET ?? "") as dataJwt;
@@ -20,16 +17,18 @@ export const isDriver = (
     const isDriver = data.role === "DRIVER";
 
     if (!isDriver) {
-      return res.status(403).json({
+      res.status(403).json({
         message: "User must be driver to access this route",
       });
+      return;
     }
 
-    req.userId = data.userId;
+    (req as any).userId = data.userId;
 
     next();
   } catch (error) {
-    return res.status(401).json({ message: "Invalid token" });
+    res.status(401).json({ message: "Invalid token" });
+    return;
   }
 };
 
