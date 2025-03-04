@@ -10,10 +10,10 @@ import userRouter from "./routes/user.routes";
 import loginRouter from "./routes/login.routes";
 import productRouter from "./routes/product.routes";
 import movementRouter from "./routes/movement.routes";
+import driverRouter from "./routes/driver.routes";
 
 import { handleError } from "./middlewares/handleError";
 
-import authRouter from "./routes/auth.routes";
 import logger from "./config/winston";
 
 const app = express();
@@ -26,6 +26,7 @@ app.use("/login", loginRouter);
 app.use("/users", userRouter);
 app.use("/products", productRouter);
 app.use("/movements", movementRouter);
+app.use("/drivers", driverRouter);
 
 app.get("/env", (req, res) => {
   res.json({

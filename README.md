@@ -57,6 +57,12 @@ A API RESTful do TECFARMA possui as seguintes rotas:
 
 - [PATCH] /movements/:id/end - Finaliza uma entrega 
 
+🔹 Motoristas
+
+- [GET] /drivers/topPerformers - Listagem dos dez motoristas com mais entregas finalizadas
+
+- [GET] /drivers/worstPerformers - Listagem dos dez motoristas com menos entregas finalizadas
+
 🛠 Como Executar o Projeto
 
 📌 Pré-requisitos
