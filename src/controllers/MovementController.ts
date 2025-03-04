@@ -5,19 +5,7 @@ import { Movement } from "../entities/Movement";
 import { Branch } from "../entities/Branch";
 import { Driver } from "../entities/Driver";
 
-export class MovementController {
-  getAll(
-    arg0: string,
-    arg1: (
-      req: Request,
-      res: Response,
-      next: import("express").NextFunction
-    ) => Promise<Response<any, Record<string, any>> | undefined>,
-    getAll: any
-  ) {
-    throw new Error("Method not implemented.");
-  }
-
+class MovementController {
   private productRepository = AppDataSource.getRepository(Product);
   private movementRepository = AppDataSource.getRepository(Movement);
   private branchRepository = AppDataSource.getRepository(Branch);
@@ -37,9 +25,8 @@ export class MovementController {
       });
 
       if (!destinationBranch) {
-        return res
-          .status(404)
-          .json({ message: "Destination branch not found" });
+        res.status(404).json({ message: "Destination branch not found" });
+        return;
       }
 
       const product = await this.productRepository.findOne({
@@ -87,29 +74,37 @@ export class MovementController {
         relations: ["destinationBranch", "product"],
       });
 
-      return res.status(200).json(movements);
+      res.status(200).json(movements);
+      return;
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "Internal server error" });
+      return;
     }
   };
 
   start = async (req: Request, res: Response) => {
     try {
+      const userId = (req as any).userId as number;
+
       const driver = await this.driverRepository.findOne({
-        where: { user_id: req.userId },
+        where: { user_id: userId },
       });
 
       if (!driver) {
-        return res.status(404).json({ message: "Driver not found" });
+       res.status(404).json({ message: "Driver not found" });
+       return;
       }
 
+
+
       const movement = await this.movementRepository.findOne({
-        where: { id: req.params.id },
+        where: { id: Number(req.params.id) },
       });
 
       if (!movement) {
-        return res.status(404).json({ message: "Movement not found" });
+        res.status(404).json({ message: "Movement not found" });
+        return;
       }
 
       movement.driver_id = driver.id;
@@ -125,26 +120,31 @@ export class MovementController {
 
   finish = async (req: Request, res: Response) => {
     try {
+      const userId = (req as any).userId as number;
+
       const driver = await this.driverRepository.findOne({
-        where: { user_id: req.userId },
+        where: { user_id: userId},
       });
 
       if (!driver) {
-        return res.status(404).json({ message: "Driver not found" });
+        res.status(404).json({ message: "Driver not found" });
+        return;
       }
 
       const movement = await this.movementRepository.findOne({
-        where: { id: req.params.id },
+        where: { id: Number(req.params.id) },
       });
 
       if (!movement) {
-        return res.status(404).json({ message: "Movement not found" });
+        res.status(404).json({ message: "Movement not found" });
+        return;
       }
 
       if (movement.driver_id != driver.id) {
-        return res
+        res
           .status(403)
           .json({ message: "Movement does not belong to this driver" });
+          return;
       }
 
       movement.status = "FINISHED";
@@ -153,6 +153,11 @@ export class MovementController {
       const product = await this.productRepository.findOne({
         where: { id: movement.product_id },
       });
+
+      if (!product) {
+        res.status(404).json({ message: "Product not found" });
+        return;
+      }
 
       const newProduct = this.productRepository.create({
         name: product.name,
@@ -163,7 +168,7 @@ export class MovementController {
       });
 
       await this.productRepository.save(newProduct);
-      
+
       res.status(200).json(updatedMovement);
     } catch (error) {
       console.error(error);

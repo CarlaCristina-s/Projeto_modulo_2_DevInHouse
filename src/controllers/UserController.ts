@@ -6,18 +6,7 @@ import { Driver } from "../entities/Driver";
 import { isCPF, isCNPJ } from "validation-br";
 import * as bcrypt from "bcrypt";
 
-export class UserController {
-  getAll(
-    arg0: string,
-    arg1: (
-      req: Request,
-      res: Response,
-      next: import("express").NextFunction
-    ) => Promise<Response<any, Record<string, any>> | undefined>,
-    getAll: any
-  ) {
-    throw new Error("Method not implemented.");
-  }
+class UserController {
   private userRepository = AppDataSource.getRepository(User);
   private branchRepository = AppDataSource.getRepository(Branch);
   private driverRepository = AppDataSource.getRepository(Driver);
@@ -69,8 +58,7 @@ export class UserController {
 
       const hashPassword = async (password: string): Promise<string> => {
         const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
-        return hashedPassword;
+        return await bcrypt.hash(password, saltRounds);
       };
 
       password = await hashPassword(password);
@@ -139,62 +127,73 @@ export class UserController {
         select: ["id", "name", "status", "profile"],
       });
 
-      return res.status(200).json(users);
+      res.status(200).json(users);
+      return;
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "Internal server error" });
+      return;
     }
   };
 
   get = async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
+      const { id } = req.params as unknown as { id: number };
 
       const user = await this.userRepository.findOne({
-        where: { id },
+        where: { id: id },
         select: ["id", "name", "status", "profile"],
       });
 
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        res.status(404).json({ message: "User not found" });
+        return;
       }
 
+      let fullAddress = null;
+
       if (user.profile === "DRIVER") {
-        const fullAddress = await this.driverRepository.query(
+        const driverFullAddress = await this.driverRepository.query(
           "SELECT full_address FROM drivers WHERE user_id = $1",
           [id]
         );
 
-        user.full_address = fullAddress[0].full_address;
+        fullAddress = driverFullAddress[0].full_address;
       } else if (user.profile === "BRANCH") {
-        const fullAddress = await this.branchRepository.query(
+        const branchFullAddress = await this.branchRepository.query(
           "SELECT full_address FROM branches WHERE user_id = $1",
           [id]
         );
 
-        user.full_address = fullAddress[0].full_address;
-      } else {
-        user.full_address = null;
-      }
+        fullAddress = branchFullAddress[0].full_address;
+      } 
 
-      return res.status(200).json(user);
+      res.status(200).json({ id: user.id, name: user.name, status: user.status, profile: user.profile, full_address: fullAddress });
+      return;
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ message: "Internal Server Error" });
+      res.status(500).json({ message: "Internal Server Error" });
+      return;
     }
   };
 
   put = async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
+      const { id } = req.params as unknown as { id: number };
       const { name, email, password, full_address } = req.body;
 
+      if (req.body.id || req.body.profile || req.body.status || req.body.created_at || req.body.updated_at) {
+        res.status(403).json({ message: "Forbidden" });
+        return;
+      }
+
       const user = await this.userRepository.findOne({
-        where: { id },
+        where: { id: id },
       });
 
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        res.status(404).json({ message: "User not found" });
+        return;
       }
 
       if (name) {
@@ -212,9 +211,9 @@ export class UserController {
           return hashedPassword;
         };
 
-        password = await hashPassword(password);
+        let userPassword = await hashPassword(password);
 
-        user.password_hash = password;
+        user.password_hash = userPassword;
       }
 
       await this.userRepository.save(user);
@@ -237,40 +236,45 @@ export class UserController {
         await this.branchRepository.save(branch[0]);
       }
 
-      return res.status(200).json(user);
+      res.status(200).json(user);
+      return;
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ message: "Internal Server Error" });
+      res.status(500).json({ message: "Internal Server Error" });
+      return;
     }
   };
 
   patch = async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
+      const { id } = req.params as unknown as { id: number };
       const { status } = req.body;
-  
+
       if (status !== true && status !== false) {
-        return res.status(400).json({ message: "Invalid status value" });
+        res.status(400).json({ message: "Invalid status value" });
+        return;
       }
-  
+
       const user = await this.userRepository.findOne({
-        where: { id },
+        where: { id: id },
       });
-  
+
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        res.status(404).json({ message: "User not found" });
+        return;
       }
-  
+
       user.status = status;
       await this.userRepository.save(user);
-  
-      return res.status(200).json({ message: "User status updated successfully" });
+
+      res.status(200).json({ message: "User status updated successfully" });
+      return;
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ message: "Internal Server Error" });
+      res.status(500).json({ message: "Internal Server Error" });
+      return;
     }
   };
-  
 }
 
 export default UserController;

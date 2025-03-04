@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { UserController } from "../controllers/UserController";
-import { isAdmin }  from "../middlewares/isAdmin";
-import { isAdminOrDriver }  from "../middlewares/isAdminOrDriver";
+import UserController from "../controllers/UserController";
+import isAdmin  from "../middlewares/isAdmin";
+import isAdminOrDriver  from "../middlewares/isAdminOrDriver";
 
 const userRouter = Router();
 const userController = new UserController();
