@@ -1,5 +1,3 @@
-![TECFARMA logo](/src/assets/logo.png)
-
 # 🚀 TECFARMA - Sistema Logístico de Produtos Farmacêuticos
 
 
@@ -76,6 +74,7 @@ Antes de começar, certifique-se de ter instalado:
 1. Clone o repositório:
 
 git clone https://github.com/CarlaCristina-s/Projeto_modulo_2_DevInHouse.git
+
 cd projeto_modulo_2
 
 2. Instale as dependências:
