@@ -1,5 +1,6 @@
 # 🚀 TECFARMA - Sistema Logístico de Produtos Farmacêuticos
 
+🔗 **Acesse o sistema online:** [TECFARMA](https://tecfarma.onrender.com)
 
 📌 Sobre o Projeto
 
@@ -75,7 +76,7 @@ Antes de começar, certifique-se de ter instalado:
 
 - Git
 
-🔧 Passos para rodar o projeto
+🔧 Passos para rodar o projeto localmente
 
 1. Clone o repositório:
 
