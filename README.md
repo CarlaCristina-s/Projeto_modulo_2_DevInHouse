@@ -134,6 +134,10 @@ Algumas melhorias que podem ser implementadas nas próximas versões:
 
 📌 Middleware dinâmico para verificação de role
 
+🔗 **Apresentação do projeto:** [Slides - TECFARMA](https://docs.google.com/presentation/d/1v81kJpb3wkmbD16EVq3VxTsWw_AQ2I5J/edit#slide=id.p1)
+> ⚠️ Para assistir o vídeo da apresentação entre em contato comigo.
+
+
 📄 Licença
 
 Este projeto está sob a licença MIT.
@@ -142,4 +146,4 @@ Este projeto está sob a licença MIT.
 
 ---
 Desenvolvido com ❤️ por **Carla Cristina de Souza**  
-🔗 [LinkedIn](https://www.linkedin.com/in/carlacrissouza/) | 📂 [GitHub](https://github.com/CarlaCristina-s/)
+🔗 [LinkedIn](https://www.linkedin.com/in/carlacrissouza/) | 📂 [E-mail](cacrisbio@gmail.com)
